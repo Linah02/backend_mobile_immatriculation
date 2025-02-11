@@ -14,7 +14,8 @@ import os
 from pathlib import Path
 import firebase_admin # type: ignore
 from firebase_admin import credentials # type: ignore
-
+from decouple import config 
+import dj_database_url
 cred = credentials.Certificate("media/espace-contribuable-firebase-adminsdk-c9ae7-c39bdf7224.json")
 firebase_admin.initialize_app(cred)
 
@@ -28,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ue0^2rmtj*1cca(e_ywcm*cu!gnxh8s1rmjffv$k-otf9l#r+w'
+SECRET_KEY =config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -125,15 +127,19 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'immatriculation',  # Remplacez par le nom de votre base de données
+#         'USER': 'postgres',  # Remplacez par le nom d'utilisateur PostgreSQL
+#         'PASSWORD': 'root',  # Remplacez par votre mot de passe PostgreSQL
+#         'HOST': 'localhost',  # Remplacez si votre base est hébergée ailleurs
+#         'PORT': '5433',  # Port par défaut de PostgreSQL
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'immatriculation',  # Remplacez par le nom de votre base de données
-        'USER': 'postgres',  # Remplacez par le nom d'utilisateur PostgreSQL
-        'PASSWORD': 'root',  # Remplacez par votre mot de passe PostgreSQL
-        'HOST': 'localhost',  # Remplacez si votre base est hébergée ailleurs
-        'PORT': '5433',  # Port par défaut de PostgreSQL
-    }
+    'default': dj_database_url.parse(config('DATABASE_URL'))
 }
 
 # Password validation

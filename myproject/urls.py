@@ -19,6 +19,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path,include
 from django.urls import path
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from myapp.views_token import generate_token
 from myapp.views import get_all_operateurs
 from django.urls import path, register_converter
@@ -44,3 +45,5 @@ urlpatterns = [
 
 if settings.DEBUG:  # Seulement en mode développement
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += staticfiles_urlpatterns()
+
