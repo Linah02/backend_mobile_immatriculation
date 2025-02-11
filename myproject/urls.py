@@ -23,17 +23,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from myapp.views_token import generate_token
 from myapp.views import get_all_operateurs
 from django.urls import path, register_converter
-class FloatConverter:
-    regex = '[0-9]+(\.[0-9]+)?'  # Expression régulière pour les flottants
-    
-    def to_python(self, value):
-        return float(value)  # Convertir la valeur capturée en un float
-    
-    def to_url(self, value):
-        return str(value)  # Retourner la valeur sous forme de chaîne
-
-# Enregistrer le convertisseur personnalisé
-register_converter(FloatConverter, 'float')
 
 
 urlpatterns = [
