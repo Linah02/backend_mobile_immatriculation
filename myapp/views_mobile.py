@@ -352,7 +352,7 @@ class TransactionListAPI(APIView):
 
         # Requête SQL pour récupérer les transactions
         query = """
-            SELECT n_quit, contribuable, total_payee, reste_ap
+            SELECT *
         FROM vue_transactions_par_quit_et_contribuable
         WHERE contribuable = %s
         ORDER BY CAST(REGEXP_REPLACE(n_quit, '[^0-9]', '', 'g') AS INTEGER) DESC;
@@ -370,10 +370,10 @@ class TransactionListAPI(APIView):
         # Sérialiser les données
         transactions = [
             {
-                'n_quit': row[1],
+                'n_quit': row[7],
                 'contribuable': row[0],
                 'total_payee': row[9],
-                'rest_payee': row[10],
+                'reste_payee': row[10],
             }
             for row in rows
         ]
