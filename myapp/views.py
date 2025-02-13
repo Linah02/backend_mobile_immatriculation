@@ -43,23 +43,36 @@ def get_all_operateurs(request):
 
 
 
-def valider_cin_et_contact(cin, contact):
-    # URL de l'API où les opérateurs sont récupérés
-    url = 'https://api-mobile-immatriculation.onrender.com/api/get_all_operateurs/'  
-    # Faire la requête à l'API pour récupérer tous les opérateurs
-    response = requests.get(url)
+# def valider_cin_et_contact(cin, contact):
+#     # URL de l'API où les opérateurs sont récupérés
+#     url = 'https://api-mobile-immatriculation.onrender.com/api/get_all_operateurs/'  
+#     # Faire la requête à l'API pour récupérer tous les opérateurs
+#     response = requests.get(url)
 
-    if response.status_code == 200:
-        operateurs = response.json()
+#     if response.status_code == 200:
+#         operateurs = response.json()
         
-        for operateur in operateurs:
-            if operateur['cin'] == cin and operateur['contact'] == contact:
-                return True  # Si le CIN et le contact correspondent, on retourne True
+#         for operateur in operateurs:
+#             if operateur['cin'] == cin and operateur['contact'] == contact:
+#                 return True  # Si le CIN et le contact correspondent, on retourne True
         
-        # Si aucun opérateur avec ce CIN et contact n'a été trouvé, lever une exception
-        raise ValidationError("❌Le CIN ou le contact ne correspond pas.")
-    else:
-        raise ValidationError("Erreur lors de la validation avec l'API.")
+#         # Si aucun opérateur avec ce CIN et contact n'a été trouvé, lever une exception
+#         raise ValidationError("❌Le CIN ou le contact ne correspond pas.")
+#     else:
+#         raise ValidationError("Erreur lors de la validation avec l'API.")
+
+def valider_cin_et_contact(cin, contact):
+    # Récupérer tous les opérateurs depuis la base de données
+    operateurs = Operateur.objects.all()
+
+    # Vérifier si un opérateur avec ce CIN et ce contact existe
+    for operateur in operateurs:
+        if operateur.cin == cin and operateur.contact == contact:
+            return True  # Si le CIN et le contact correspondent, on retourne True
+
+    # Si aucun opérateur avec ce CIN et contact n'a été trouvé, lever une exception
+    raise ValidationError("❌Le CIN ou le contact ne correspond pas.")
+
 
 
 def envoyer_email(email, prenif, mot_de_passe):
