@@ -370,10 +370,10 @@ class TransactionListAPI(APIView):
         # Sérialiser les données
         transactions = [
             {
-                'n_quit': row[0],
-                'contribuable': row[1],
-                'total_payee': row[2],
-                'rest_payee': row[3],
+                'n_quit': row[1],
+                'contribuable': row[0],
+                'total_payee': row[9],
+                'rest_payee': row[10],
             }
             for row in rows
         ]
