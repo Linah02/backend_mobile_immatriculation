@@ -352,10 +352,11 @@ class TransactionListAPI(APIView):
 
         # Requête SQL pour récupérer les transactions
         query = """
-            SELECT n_quit, contribuable, total_payee, reste_ap
-            FROM vue_transactions_par_quit_et_contribuable
-            WHERE contribuable = %s;
-        """
+            SELECT *
+        FROM vue_transactions_par_quit_et_contribuable
+        WHERE contribuable = %s
+        ORDER BY CAST(REGEXP_REPLACE(n_quit, '[^0-9]', '', 'g') AS INTEGER) DESC;
+    """
 
         with connection.cursor() as cursor:
             cursor.execute(query, [id_contribuable])
