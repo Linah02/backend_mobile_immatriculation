@@ -20,5 +20,4 @@ urlpatterns = [
     path('discussion/', discussion, name='discussion'),
     path('unread_count/',get_unread_message_count, name='unread_count'),
     path('mark_messages_as_read/',mark_messages_as_read, name='mark_messages_as_read'),
-    
 ]
