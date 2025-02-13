@@ -336,7 +336,7 @@ def validate_code(request):
 
 class TransactionListAPI(APIView):
     class TransactionPagination(PageNumberPagination):
-        page_size = 2  # Nombre de transactions par page
+        page_size = 10  # Nombre de transactions par page
         page_size_query_param = 'page_size'
         max_page_size = 100
 
