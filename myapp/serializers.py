@@ -72,3 +72,10 @@ class TransactionSerializer(serializers.Serializer):
     contribuable = serializers.IntegerField()
     total_payee = serializers.FloatField()
     reste_ap = serializers.FloatField()
+
+from .models import Declaration
+
+class DeclarationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Declaration
+        fields = '__all__'

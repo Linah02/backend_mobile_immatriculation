@@ -1,6 +1,6 @@
 # myapp/urls.py
 from django.urls import path
-from .views_mobile import GenreListAPIView , SitMatrimListAPIView,FokontanyViewList,inscription,login,send_code,validate_code,TransactionListAPI,api_transaction_details,api_profil,modifier_mot_de_passe_api,modifier_infos_personnelles,modifier_photo_profil,chart_api,discussion,get_unread_message_count,mark_messages_as_read
+from .views_mobile import GenreListAPIView , SitMatrimListAPIView,FokontanyViewList,inscription,login,send_code,validate_code,TransactionListAPI,api_transaction_details,api_profil,modifier_mot_de_passe_api,modifier_infos_personnelles,modifier_photo_profil,chart_api,discussion,get_unread_message_count,mark_messages_as_read,DeclarationDEAPIView
 
 urlpatterns = [
     path('genres/', GenreListAPIView.as_view(), name='genre-list'),
@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', login, name='login'),
     path('send_code/', send_code, name='send_code'),
     path('validate_code/', validate_code, name='validate_code'),
+    path('declaration_DE/', DeclarationDEAPIView, name='declaration_DE'),
     path('transactions/', TransactionListAPI.as_view(), name='api_transactions'),
     path('api_transaction_details/<str:n_quit>/', api_transaction_details, name='api_transaction_details'),
     path('api_profil', api_profil, name='api_profil'),

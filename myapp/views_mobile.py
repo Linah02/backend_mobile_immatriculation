@@ -654,3 +654,71 @@ def mark_messages_as_read(request):
     except Exception as e:
         print(f"Erreur lors de la mise à jour des messages : {e}")
         return JsonResponse({'error': 'Erreur serveur lors de la mise à jour des messages'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# views.py (API version)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from decimal import Decimal
+
+from .models import Taux_droit_enregistrement, Declaration, Contribuable
+from .serializers import DeclarationSerializer  # à créer
+# views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from decimal import Decimal
+from .models import Taux_droit_enregistrement, Declaration, Contribuable
+
+def calculer_montant_droit(montant_base, taux):
+    base = Decimal(montant_base)
+    taux_decimal = Decimal(taux) / 100
+    montant = base * taux_decimal
+    return montant if montant >= 10000 else Decimal('10000')
+
+@api_view(['POST', 'GET'])
+class DeclarationDEAPIView(APIView):
+    def post(self, request):
+        contribuable_id = request.session.get('contribuable_id')
+
+        if not contribuable_id:
+            return Response({"error": "Utilisateur non authentifié."}, status=401)
+
+        montant_base = request.data.get('montant_base')
+        type_droit_id = request.data.get('type_droit')
+
+        if not montant_base or not type_droit_id:
+            return Response({"error": "Champs requis manquants."}, status=400)
+
+        try:
+            taux_obj = Taux_droit_enregistrement.objects.get(id=type_droit_id)
+        except Taux_droit_enregistrement.DoesNotExist:
+            return Response({"error": "Type de droit invalide."}, status=400)
+
+        taux = taux_obj.taux
+        montant_ap = calculer_montant_droit(montant_base, taux)
+
+        if request.data.get('confirm'):
+            try:
+                contribuable = Contribuable.objects.get(id=contribuable_id)
+            except Contribuable.DoesNotExist:
+                return Response({"error": "Contribuable non trouvé."}, status=404)
+
+            Declaration.objects.create(
+                id_contribuable=contribuable,
+                base_imposable=montant_base,
+                id_tde=taux_obj,
+                mnt_ap=montant_ap
+            )
+
+            return Response({
+                "message": f"Déclaration enregistrée. Montant à payer : {montant_ap} Ar",
+                "montant_calcule": montant_ap
+            }, status=201)
+
+        return Response({
+            "message": "Montant calculé",
+            "montant_calcule": montant_ap
+        }, status=200)
