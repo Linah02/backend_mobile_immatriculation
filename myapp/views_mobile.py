@@ -678,7 +678,6 @@ def calculer_montant_droit(montant_base, taux):
     montant = base * taux_decimal
     return montant if montant >= 10000 else Decimal('10000')
 
-@api_view(['POST', 'GET'])
 class DeclarationDEAPIView(APIView):
     def post(self, request):
         contribuable_id = request.session.get('contribuable_id')
