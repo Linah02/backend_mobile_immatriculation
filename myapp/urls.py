@@ -1,6 +1,6 @@
 # myapp/urls.py
 from django.urls import path
-from .views_mobile import GenreListAPIView , SitMatrimListAPIView,FokontanyViewList,inscription,login,send_code,validate_code,TransactionListAPI,api_transaction_details,api_profil,modifier_mot_de_passe_api,modifier_infos_personnelles,modifier_photo_profil,chart_api,discussion,get_unread_message_count,mark_messages_as_read,DeclarationDEAPIView, api_list_declaration_de
+from .views_mobile import GenreListAPIView , SitMatrimListAPIView,FokontanyViewList,inscription,login,send_code,validate_code,TransactionListAPI,api_transaction_details,api_profil,modifier_mot_de_passe_api,modifier_infos_personnelles,modifier_photo_profil,chart_api,discussion,get_unread_message_count,mark_messages_as_read,DeclarationDEAPIView,DeclarationListAPI
 
 urlpatterns = [
     path('genres/', GenreListAPIView.as_view(), name='genre-list'),
@@ -11,7 +11,7 @@ urlpatterns = [
     path('send_code/', send_code, name='send_code'),
     path('validate_code/', validate_code, name='validate_code'),
     path('declaration_DE/', DeclarationDEAPIView.as_view(), name='declaration_DE'),
-    path('api_list_declaration_de/',api_list_declaration_de, name='api_list_declaration_de'),
+    path('api_list_declaration_de/',DeclarationListAPI.as_view(), name='api_list_declaration_de'),
     path('transactions/', TransactionListAPI.as_view(), name='api_transactions'),
     path('api_transaction_details/<str:n_quit>/', api_transaction_details, name='api_transaction_details'),
     path('api_profil', api_profil, name='api_profil'),
