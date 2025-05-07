@@ -675,6 +675,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from decimal import Decimal
 from .models import Declaration, Taux_droit_enregistrement, Contribuable
+from rest_framework.decorators import api_view
+from rest_framework import status
+from django.core.paginator import Paginator
+from django.db import connection
 
 def calculer_montant_droit(montant_base, taux): 
     base = Decimal(montant_base)
@@ -729,6 +733,42 @@ class DeclarationDEAPIView(APIView):
             "message": f"Droit à payer calculé : {montant_ap} Ar. Confirmez pour enregistrer.",
             "montant_calcule": montant_ap
         }, status=200)
+
+
+
+
+@api_view(['POST'])
+def api_list_declaration_de(request):
+    id_contribuable = request.data.get('id_contribuable')
+
+    if not id_contribuable:
+        return Response({'error': 'ID du contribuable requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Requête SQL vers la vue
+    query = """
+        SELECT * FROM vue_declarations_par_contribuable
+        WHERE id_contribuable_id = %s
+        ORDER BY date_declaration DESC;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, [id_contribuable])
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+
+    # Convertir en liste de dictionnaires
+    declarations = [dict(zip(columns, row)) for row in rows]
+
+    # Pagination
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(declarations, 5)
+    page = paginator.get_page(page_number)
+
+    return Response({
+        'declarations': list(page),
+        'total_pages': paginator.num_pages,
+        'current_page': page.number,
+    })
 
 # def calculer_montant_droit(montant_base, taux):
 #     base = Decimal(montant_base)
