@@ -671,8 +671,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from decimal import Decimal
 from .models import Taux_droit_enregistrement, Declaration, Contribuable
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from decimal import Decimal
+from .models import Declaration, Taux_droit_enregistrement, Contribuable
 
-def calculer_montant_droit(montant_base, taux):
+def calculer_montant_droit(montant_base, taux): 
     base = Decimal(montant_base)
     taux_decimal = Decimal(taux) / 100
     montant = base * taux_decimal
@@ -687,6 +691,7 @@ class DeclarationDEAPIView(APIView):
 
         montant_base = request.data.get('montant_base')
         type_droit_id = request.data.get('type_droit')
+        confirm = request.data.get('confirm', False)
 
         if not montant_base or not type_droit_id:
             return Response({"error": "Champs requis manquants."}, status=400)
@@ -696,10 +701,12 @@ class DeclarationDEAPIView(APIView):
         except Taux_droit_enregistrement.DoesNotExist:
             return Response({"error": "Type de droit invalide."}, status=400)
 
-        taux = taux_obj.taux
-        montant_ap = calculer_montant_droit(montant_base, taux)
+        try:
+            montant_ap = calculer_montant_droit(montant_base, taux_obj.taux)
+        except:
+            return Response({"error": "Erreur dans le calcul du montant."}, status=400)
 
-        if request.data.get('confirm'):
+        if confirm in ['true', True, 'True', 1, '1']:  # prend en compte plusieurs formats
             try:
                 contribuable = Contribuable.objects.get(id=contribuable_id)
             except Contribuable.DoesNotExist:
@@ -713,11 +720,62 @@ class DeclarationDEAPIView(APIView):
             )
 
             return Response({
-                "message": f"Déclaration enregistrée. Montant à payer : {montant_ap} Ar",
+                "message": f"Déclaration enregistrée avec succès. Montant à payer : {montant_ap} Ar",
                 "montant_calcule": montant_ap
             }, status=201)
 
+        # Si confirm == false ou absent : retour du calcul uniquement
         return Response({
-            "message": "Montant calculé",
+            "message": f"Droit à payer calculé : {montant_ap} Ar. Confirmez pour enregistrer.",
             "montant_calcule": montant_ap
         }, status=200)
+
+# def calculer_montant_droit(montant_base, taux):
+#     base = Decimal(montant_base)
+#     taux_decimal = Decimal(taux) / 100
+#     montant = base * taux_decimal
+#     return montant if montant >= 10000 else Decimal('10000')
+
+# class DeclarationDEAPIView(APIView):
+#     def post(self, request):
+#         contribuable_id = request.session.get('contribuable_id')
+
+#         if not contribuable_id:
+#             return Response({"error": "Utilisateur non authentifié."}, status=401)
+
+#         montant_base = request.data.get('montant_base')
+#         type_droit_id = request.data.get('type_droit')
+
+#         if not montant_base or not type_droit_id:
+#             return Response({"error": "Champs requis manquants."}, status=400)
+
+#         try:
+#             taux_obj = Taux_droit_enregistrement.objects.get(id=type_droit_id)
+#         except Taux_droit_enregistrement.DoesNotExist:
+#             return Response({"error": "Type de droit invalide."}, status=400)
+
+#         taux = taux_obj.taux
+#         montant_ap = calculer_montant_droit(montant_base, taux)
+
+#         if request.data.get('confirm'):
+#             try:
+#                 contribuable = Contribuable.objects.get(id=contribuable_id)
+#             except Contribuable.DoesNotExist:
+#                 return Response({"error": "Contribuable non trouvé."}, status=404)
+
+#             Declaration.objects.create(
+#                 id_contribuable=contribuable,
+#                 base_imposable=montant_base,
+#                 id_tde=taux_obj,
+#                 mnt_ap=montant_ap
+#             )
+
+#             return Response({
+#                 "message": f"Déclaration enregistrée. Montant à payer : {montant_ap} Ar",
+#                 "montant_calcule": montant_ap
+#             }, status=201)
+
+#         return Response({
+#             "message": "Montant calculé",
+#             "montant_calcule": montant_ap
+#         }, status=200)
