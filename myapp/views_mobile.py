@@ -98,7 +98,7 @@ def inscription(request):
         contribuable.mot_de_passe = mot_de_passe
         contribuable.save()
 
-        # envoyer_email(data['email'], prenif, mot_de_passe)
+        envoyer_email(data['email'], prenif, mot_de_passe)
 
         # Debug : Afficher les requêtes SQL exécutées
         for query in connection.queries:
